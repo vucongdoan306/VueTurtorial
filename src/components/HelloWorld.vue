@@ -1,58 +1,152 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="hello-kitty">
+    <p id="beforeMount">{{ message }}</p>
+    <p v-html="htmlText"></p>
+    <button @click="changeTest()" class="btn btn-secondary">
+      Thay đổi message
+    </button>
+    <br /><br /><br /><br />
+
+    <div :class="colorText">Một hai</div>
+    <button @click="changeColor()" class="btn btn-secondary">
+      Thay đổi màu chữ
+    </button>
+    <br /><br /><br /><br />
+
+    <select id="province" v-model="selectedProvince">
+      <option value="">---Tỉnh/TP---</option>
+      <option
+        v-for="province in objTest"
+        :key="province.code"
+        :value="province"
+      >
+        {{ province.name }}
+      </option>
+    </select>
+    <p>Tôi đến từ {{ selectedProvince.name }}</p>
+
+    <input type="number" v-model="number1" style="margin-right: 10px" />
+    <input type="number" v-model="number2" style="margin-right: 10px" />
+    <span>Tổng: {{ sum }}</span>
+    <br /><br />
+
+    <input
+      v-model="firstName"
+      placeholder="First Name"
+      style="margin-right: 10px"
+    />
+    <input
+      v-model="lastName"
+      placeholder="Last Name"
+      style="margin-right: 10px"
+    />
+    <input v-model="fullName" placeholder="Full Name" />
   </div>
 </template>
 
 <script>
+/* eslint-disable */
+import { onMounted } from "vue";
+import axios from "axios";
 export default {
-  name: 'HelloWorld',
   props: {
-    msg: String
-  }
-}
+    propInit: {
+      type: String,
+      default: "hello world",
+    },
+  },
+
+  beforeCreate() {
+    console.log("Beforecreate thì dùng được prop", this.propInit);
+    console.log("Còn data thì", this.message);
+  },
+
+  created() {
+    let me = this;
+    console.log("this is created");
+    axios.get("https://provinces.open-api.vn/api/p/").then((data) => {
+      me.objTest = data.data;
+      console.log(me.objTest);
+    });
+  },
+
+  beforeMount() {
+    console.log("Component will beforemount");
+  },
+
+  async mounted() {
+    console.log("Component mounted");
+  },
+
+  beforeUpdate() {
+    console.log("Component bèfore updated");
+  },
+
+  updated() {
+    console.log("Component updated");
+  },
+
+  beforeUnmount() {
+    console.log("unmount");
+  },
+
+  unmounted() {
+    console.log(this.message);
+  },
+
+  methods: {
+    changeTest: function () {
+      this.message = this.message + "1";
+    },
+    changeColor() {
+      this.colorText = this.colorText == "red" ? "blue" : "red";
+    },
+  },
+
+  computed: {
+    sum() {
+      return this.number1 + this.number2;
+    },
+    fullName: {
+      //getter
+      get() {
+        return this.firstName + " " + this.lastName;
+      },
+      // setter
+      set(newValue) {
+        if (!newValue) newValue = " ";
+        [this.firstName, this.lastName] = newValue.split(" ");
+      },
+    },
+  },
+
+  data() {
+    return {
+      message: "Hello, Vue 3!",
+      htmlText: '<span style="color: red">This should be red.</span>',
+      colorText: "red",
+      objTest: {},
+      selectedProvince: "",
+      number1: 0,
+      number2: 0,
+      firstName: "",
+      lastName: "",
+    };
+  },
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.hello-kitty {
+  border: 1px solid #000;
+  border-radius: 4px;
+  margin: 10px 100px;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.red {
+  color: red;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+
+.blue {
+  color: blue;
 }
 </style>
